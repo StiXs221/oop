@@ -1,10 +1,15 @@
-#include "GameBase.h"
-#include "../Auxiliary functionality/TextColoring.h"
+﻿#include "GameBase.h"
+#include "AuxiliaryFunctionality/TextColoring.h"
 
 void GameBase::describeYourself()
 {
     std::cout << ANSIColor::coloredString("I'm empty abstract base!",
             ANSIColor::FG_RED) << std::endl;
+}
+
+std::string GameBase::getInformationAbout()
+{
+    return "I'm empty abstract base!";
 }
 
 std::shared_ptr<CompositeUnit> GameBase::createLegion()
@@ -62,7 +67,7 @@ void GameBase::initUnitCount()
     unitCount->addUnitType(eUnitsType::CAVALRY, CAVALRY_MAX_QUANTITY);
 }
 
-void GameBase::updateAfterDeath(std::shared_ptr<Unit> corpse, size_t x, size_t y)
+void GameBase::updateAfterDeath(std::shared_ptr<Unit> corpse, [[maybe_unused]] size_t x, [[maybe_unused]] size_t y)
 {
     // Write information about corpses into account
     if(corpse->isComposite())
@@ -88,4 +93,50 @@ std::shared_ptr<Unit> GameBase::getUnit(eUnitsType typeID)
     unitCount->increaseElementCount(typeID, 1);
     newUnit->registerObserver(shared_from_this());
     return newUnit;
+}
+
+size_t GameBase::getHealth()
+{
+    return health;
+}
+
+std::string GameBase::getUnitCountInf()
+{
+    return unitCount->getTotalInformation();
+}
+
+std::string GameBase::convertEnumBaseNameToStr(eBaseType type)
+{
+    if(type == HUMAN_BASE)
+    {
+        return "human base";
+    }
+    else if(type == HELL_BASE)
+    {
+        return "hell base";
+    }
+
+    return "";
+}
+
+std::shared_ptr<BaseParametersCaretaker> GameBase::createMemento()
+{
+    std::shared_ptr<BaseParametersCaretaker> memento = std::make_shared<BaseParametersCaretaker>();
+
+    memento->health = health;
+    memento->type = getBaseType();
+    memento->unitCountsData = unitCount->createMemento();
+
+    return memento;
+}
+
+void GameBase::restoreMemento(std::shared_ptr<BaseParametersCaretaker> memento)
+{
+    health = memento->health;
+    unitCount->restoreMemento(memento->unitCountsData);
+}
+
+eBaseType GameBase::getBaseType()
+{
+    return NONE_BASE;
 }

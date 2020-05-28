@@ -1,4 +1,4 @@
-#ifndef OOP_UNIT_H
+﻿#ifndef OOP_UNIT_H
 #define OOP_UNIT_H
 
 #include <iostream>
@@ -8,12 +8,13 @@
 #include <memory>
 #include <map>
 
-#include "../Information headers/unitPar.h"
-#include "../Coords.h"
+#include "InformationHeaders/unitPar.h"
+#include "GameField/Coords.h"
 #include "IUnitAttack.h"
-#include "../Auxiliary functionality/UnitObserver.h"
-#include "../Auxiliary functionality/UnitMediators.h"
-#include "../Auxiliary functionality/UnitSubject.h"
+#include "AuxiliaryFunctionality/UnitObserver.h"
+#include "AuxiliaryFunctionality/UnitMediators.h"
+#include "AuxiliaryFunctionality/UnitSubject.h"
+#include "Game/Saving/SaveStuctures.h"
 
 class CompositeUnit;
 
@@ -28,6 +29,7 @@ protected:
     size_t actionTokens{};
 
     Coords position;
+    Coords baseCreationPosition{};  // for restoring from memento
     std::shared_ptr<UnitMoveMediator> moveMediator;
     std::vector<std::shared_ptr<UnitObserver>> observers;
 
@@ -61,6 +63,7 @@ public:
     virtual void setArmorBoost(size_t boost);
     void disableExtraActionToken();
     virtual void describeYourself();
+    virtual std::string getUnitInf() = 0;
 
     // Observer functionality
     void registerObserver(std::shared_ptr<UnitObserver> observer) override;
@@ -70,6 +73,17 @@ public:
     // Attack functionality
     void setUnitMeleeAttackMediator(std::shared_ptr<UnitMeleeAttackMediator> mediator_) override;
     void carryOutMeleeAttack(size_t x, size_t y) override;
+
+    // Memento functionality
+    std::shared_ptr<UnitParametersMemento> createMemento();
+    void restoreMemento(std::shared_ptr<UnitParametersMemento> memento);
+
+    // special functionality
+    static std::string convertEnumUnitNameToStr(eUnitsType type);
+
+    // for restoring from memento
+    void setBaseCreationCoords(Coords coords);
+    Coords getBaseCreationCoords();
 };
 
 #endif //OOP_UNIT_H
